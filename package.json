@@ -1,25 +1,14 @@
 {
-  "name": "api-spotify",
-  "version": "1.0.0",
-  "description": "",
-  "main": "script.js",
+  "name": "spotify-profile-demo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build:css": "sass style.scss dist/css/style.css",
-    "watch:css": "sass --watch style.scss:dist/css/style.css"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ENFANTSDUPAYS/API-Spotify.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/ENFANTSDUPAYS/API-Spotify/issues"
-  },
-  "homepage": "https://github.com/ENFANTSDUPAYS/API-Spotify#readme",
   "devDependencies": {
-    "sass": "^1.93.2"
+    "vite": "^7.1.7"
   }
 }

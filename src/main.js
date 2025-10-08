@@ -27,8 +27,10 @@ if (!accessToken || Date.now() >= expiry) {
 }
 const profile = await fetchProfile(accessToken);
 const data = await fetchArtiste(accessToken);
+const playlists = await fetchPlaylist(accessToken);
 populateUI(profile);
 artisteUI(data.artists.items);
+playlistUI(playlists);
 
 
 
@@ -42,7 +44,7 @@ const params = new URLSearchParams();
 params.append("client_id", clientId);
 params.append("response_type", "code");
 params.append("redirect_uri", "http://127.0.0.1:5173/callback");
-params.append("scope", "user-read-private user-read-email user-follow-read");
+params.append("scope", "user-read-private user-read-email user-follow-read playlist-read-private");
 params.append("code_challenge_method", "S256");
 params.append("code_challenge", challenge);
 
@@ -189,8 +191,10 @@ function searchUI(search){
         "Nombre de musiques trouvés : " + search.tracks.items.length;
 
     search.tracks.items.forEach(track => {
-        const trackDiv = document.createElement("div");
-        trackDiv.classList.add("track-item");
+        const link = document.createElement("a");
+        link.href = "#";
+        link.classList.add("track-item"); 
+        link.dataset.src = `https://open.spotify.com/embed/track/${track.id}`;
 
         const title = document.createElement("span");
         title.innerText = track.name;
@@ -199,8 +203,76 @@ function searchUI(search){
         const artists = document.createElement("span");
         artists.innerText = " - " + artistNames;
 
-        trackDiv.appendChild(title);
-        trackDiv.appendChild(artists);
-        container.appendChild(trackDiv);
+        link.appendChild(title);
+        link.appendChild(artists);
+        container.appendChild(link);
+    });
+    
+    //AFFICHAGE AVEC IFRAME
+    const containerIframe = document.getElementById('container-iframe');
+    const trackItems = document.querySelectorAll('.track-item');
+
+    trackItems.forEach(item => {
+    item.addEventListener('click', (e) => { // ← ajoute e ici
+        e.preventDefault(); 
+        const src = item.dataset.src;
+        const iframe = document.getElementById('iframe-player');
+        iframe.src = src;
+
+        // Afficher le container avec transition
+        const containerIframe = document.getElementById('container-iframe');
+        containerIframe.style.display = 'flex';
+        setTimeout(() => containerIframe.classList.add('show'), 10);
+    });
+});
+    containerIframe.addEventListener('click', () => {
+        containerIframe.classList.remove('show');
+        setTimeout(() => {
+            containerIframe.style.display = 'none';
+            document.getElementById('iframe-player').src = "";
+        }, 300);
+    });
+}
+
+async function fetchPlaylist(token) {
+    const result = await fetch(`https://api.spotify.com/v1/me/playlists`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    return await result.json();
+}
+
+function playlistUI(playlists){
+    const container = document.getElementById("mini-container-playlist");
+
+    if (!playlists || !playlists.items || playlists.items.length === 0) {
+        container.innerText = "Aucun résultat trouvé.";
+        return;
+    }
+    document.getElementById('count-playlist').innerText =
+        "Nombre de playlists trouvés : " + playlists.items.length;
+
+    playlists.items.forEach(playlist => {
+        const playlistDiv = document.createElement("div");
+        playlistDiv.classList.add("mini-container");
+
+        const link = document.createElement("a");
+        link.href = playlist.uri;
+        link.target = "_blank";
+
+        const img = document.createElement("img");
+        img.alt = `Cover playlist ${playlist.name}`;
+        if (playlist.images && playlist.images.length > 0) {
+            img.src = playlist.images[0].url;
+        }
+        link.appendChild(img);
+
+        const span = document.createElement("span");
+        span.innerText = playlist.name;
+
+        playlistDiv.appendChild(link);
+        playlistDiv.appendChild(span);
+
+        container.appendChild(playlistDiv);
     });
 }

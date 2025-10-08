@@ -97,6 +97,14 @@ a:hover {
   margin: 1rem;
 }
 
+.mini-container span{
+  display: inline-block;     /* ou block selon le layout */
+  max-width: 150px;          /* largeur max autorisée */
+  white-space: nowrap;       /* pas de retour à la ligne */
+  overflow: hidden;          /* cache le texte dépassant */
+  text-overflow: ellipsis;   /* ajoute "..." à la fin si trop long */
+  vertical-align: middle;
+}
 
 #search-form {
   display: flex;
@@ -139,6 +147,8 @@ a:hover {
 }
 
 .search-results {
+  display: flex;
+  flex-direction: column;
   margin-top: 1rem;
   padding: 1rem;
   background: #181818;
@@ -155,6 +165,7 @@ a:hover {
 .track-item:hover{
   cursor: pointer;
   border-radius: 25px;
+  color: var(--bg-dark);
   background: #1DB954;
   width: max-content;
   scale: 1.1;
@@ -171,4 +182,32 @@ a:hover {
 #clear{
   width: max-content;
   height: max-content;
+}
+
+#container-iframe{
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  z-index: 1;
+  opacity: 0;
+  justify-content: center;
+  align-items: center;
+}
+
+
+#container-iframe.show {
+  display: flex;
+  opacity: 1;
+}
+
+#iframe-player {
+  width: 80%;
+  height: 80%;
+  border: none;
+  border-radius: 10px;
 }

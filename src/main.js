@@ -2,6 +2,15 @@ import { initKey } from "./initKey";
 
 const clientId = initKey;
 
+//FUNCTION POUR CLEAR
+window.initClear = function() {
+    if (confirm("Voulez-vous vraiment effacer toutes les données locales ?")) {
+        localStorage.clear();
+         window.history.replaceState({}, document.title, window.location.pathname);
+        location.reload();
+    }
+};
+
 const params = new URLSearchParams(window.location.search);
 const code = params.get("code");
 let accessToken = localStorage.getItem("access_token");//MODE LOCAL STORAGE POUR STOCKER LE TOKEN
@@ -13,11 +22,14 @@ if (!accessToken || Date.now() >= expiry) {
     } else {
         const accessToken = await getAccessToken(clientId, code);
         localStorage.setItem("access_token", accessToken);
-        localStorage.setItem("token_expiry", Date.now() + 3600 * 1000); //TOKEN 1H
+        localStorage.setItem("token_expiry", Date.now() + 3600 * 1000);//TOKEN 1H
     }
 }
 const profile = await fetchProfile(accessToken);
+const data = await fetchArtiste(accessToken);
 populateUI(profile);
+artisteUI(data.artists.items);
+
 
 
 async function redirectToAuthCodeFlow(clientId) {
@@ -30,7 +42,7 @@ const params = new URLSearchParams();
 params.append("client_id", clientId);
 params.append("response_type", "code");
 params.append("redirect_uri", "http://127.0.0.1:5173/callback");
-params.append("scope", "user-read-private user-read-email");
+params.append("scope", "user-read-private user-read-email user-follow-read");
 params.append("code_challenge_method", "S256");
 params.append("code_challenge", challenge);
 
@@ -102,3 +114,93 @@ document.getElementById("displayName").innerText = profile.display_name;
     document.getElementById("url").setAttribute("href", profile.href);
 }
 
+async function fetchArtiste(token) {
+    let limit = 30;
+    const result = await fetch(`https://api.spotify.com/v1/me/following?type=artist&limit=${limit}`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    return await result.json();
+}
+
+function artisteUI(artists){
+    const container = document.getElementById("mini-container");
+    document.getElementById('count-artiste').innerText =
+        "Nombre d'artistes trouvés : " + artists.length;
+
+    artists.forEach(artist => {
+        const artistDiv = document.createElement("div");
+        artistDiv.classList.add("mini-container");
+
+        const link = document.createElement("a");
+        link.href = artist.uri;
+        link.target = "_blank";
+
+        const img = document.createElement("img");
+        img.alt = `photo de profil de ${artist.name}`;
+        if (artist.images && artist.images.length > 0) {
+            img.src = artist.images[0].url;
+        }
+        link.appendChild(img);
+
+        const span = document.createElement("span");
+        span.innerText = artist.name;
+
+        artistDiv.appendChild(link);
+        artistDiv.appendChild(span);
+
+        container.appendChild(artistDiv);
+    });
+}
+
+
+//RECHERCHE DE MUSIQUE
+async function fetchSearchTrack(token, query) {
+    let limit = 20
+    const result = await fetch(
+        `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&include_external=audio&limit=${limit}`,
+        {
+            headers: { Authorization: `Bearer ${token}` }
+        }
+    );
+    return await result.json();
+}
+
+const form = document.getElementById("search-form");
+const input = document.getElementById("search-input");
+
+form.addEventListener("submit", async (e) => {
+    const query = input.value.trim();
+    if (!query) return;
+
+    const music = await fetchSearchTrack(accessToken, query);
+    searchUI(music);
+});
+
+
+function searchUI(search){
+    const container = document.getElementById("search-results");
+
+    if (!search.tracks || !search.tracks.items || search.tracks.items.length === 0) {
+        container.innerText = "Aucun résultat trouvé.";
+        return;
+    }
+    document.getElementById('count-music').innerText =
+        "Nombre de musiques trouvés : " + search.tracks.items.length;
+
+    search.tracks.items.forEach(track => {
+        const trackDiv = document.createElement("div");
+        trackDiv.classList.add("track-item");
+
+        const title = document.createElement("span");
+        title.innerText = track.name;
+
+        const artistNames = track.artists.map(a => a.name).join(", ");
+        const artists = document.createElement("span");
+        artists.innerText = " - " + artistNames;
+
+        trackDiv.appendChild(title);
+        trackDiv.appendChild(artists);
+        container.appendChild(trackDiv);
+    });
+}

@@ -5,20 +5,40 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Spotify Profile demo</title>
-    <link rel="stylesheet" href="src/style.css"> 
+    <link rel="stylesheet" href="src/style.css">
   </head>
   <body>
     <section id="profile">
-    <h1>Profil Spotify</h1>
-    <h2>Connecté en tant que : <span id="displayName"></span></h2>
-    <span id="avatar"></span>
-    <ul>
-        <li>User ID : <span id="id"></span></li>
-        <li>Email : <span id="email"></span></li>
-        <li>Spotify URI : <a id="uri" href="#"></a></li>
-        <li>Lien : <a id="url" href="#"></a></li>
-        <li>Image de profil : <a href="#" id="imgUrl"></a></li>
-    </ul>
+      <div class="container-clear">
+        <h1>Profil Spotify</h1>
+        <button id="clear" onclick="initClear()">Clear</button>
+      </div> 
+      <h2>Connecté en tant que : <span id="displayName"></span></h2>
+      <span id="avatar"></span>
+      <ul>
+          <li>ID utilisateur : <span id="id"></span></li>
+          <li>Email : <span id="email"></span></li>
+          <li>Spotify URL : <a id="uri" href="#"></a></li>
+          <li>Lien : <a id="url" href="#"></a></li>
+          <li>Image de profil : <a href="#" id="imgUrl"></a></li>
+      </ul>
+      <div class="container-artiste" id="music-search">
+        <h1>Rechercher une musique</h1>
+        <span id="count-music"></span>
+        <form action="#music-search" method="GET" id="search-form">
+          <input type="search" id="search-input" placeholder="Rechercher une musique..." autocomplete="on">
+          <button type="submit">Rechercher</button>
+        </form>
+        <div id="search-results" class="search-results"></div>
+      </div>
+      <div class="container-artiste">
+        <h1>Liste des artistes</h1>
+        <span id="count-artiste"></span>
+        <div class="mini-bloc">
+          <div id="mini-container" class="mini-container-global">
+          </div>
+        </div>
+      </div>
     </section>
     <script type="module" src="src/main.js"></script>
   </body>
